@@ -1,7 +1,7 @@
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from qiskit_aer import AerSimulator
 
-# ====================== 3-битный S-BOX ======================
+# 3-битный S-BOX 
 SBOX3 = [
     0xB & 0x7, 0x1 & 0x7, 0x9 & 0x7, 0x4 & 0x7,
     0xB & 0x7, 0xA & 0x7, 0xC & 0x7, 0x8 & 0x7,
@@ -12,7 +12,7 @@ NUM_ROUNDS = 8
 R = [1, 1, 1]
 
 
-# ====================== УТИЛИТЫ ======================
+# УТИЛИТЫ 
 def load3(qc, reg, val):
     for i in range(3):
         if (val >> i) & 1:
@@ -63,7 +63,7 @@ def sub_mod3(qc, a, b):
         qc.cx(b[i], a[i])
 
 
-# ====================== РАУНД ======================
+# РАУНД
 def round_func_3(qc, A, B, C, D, t1, t2, K, round_num):
 
     r1, r2, r3 = R
@@ -146,7 +146,7 @@ def round_func_3(qc, A, B, C, D, t1, t2, K, round_num):
         qc.swap(B[i], C[i])
 
 
-# ====================== ПОСТРОЕНИЕ СХЕМЫ ШИФРОВАНИЯ ======================
+#ПОСТРОЕНИЕ СХЕМЫ ШИФРОВАНИЯ
 def build_encrypt_circuit_3(block, key3):
     A = QuantumRegister(3, "A")
     B = QuantumRegister(3, "B")
@@ -170,7 +170,7 @@ def build_encrypt_circuit_3(block, key3):
     return qc, (A, B, C, D)
 
 
-# ====================== СИМУЛЯЦИЯ ШИФРОВАНИЯ ======================
+#СИМУЛЯЦИЯ ШИФРОВАНИЯ
 def simulate_encrypt(qc, A, B, C, D):
     out = ClassicalRegister(12, "out")
     qc.add_register(out)
@@ -181,13 +181,13 @@ def simulate_encrypt(qc, A, B, C, D):
     return int(list(res.get_counts().keys())[0], 2)
 
 
-# ====================== ШИФРОВАНИЕ БЛОКА (БЕЗ АНАЛИЗА) ======================
+# ШИФРОВАНИЕ БЛОКА
 def encrypt_block(block, key3):
     qc, (A, B, C, D) = build_encrypt_circuit_3(block, key3)
     return simulate_encrypt(qc, A, B, C, D)
 
 
-# ====================== КВАНТОВОЕ РАСШИФРОВАНИЕ БЛОКА ======================
+#КВАНТОВОЕ РАСШИФРОВАНИЕ БЛОКА
 def quantum_block_decrypt_3(block, key3):
     A = QuantumRegister(3, "A")
     B = QuantumRegister(3, "B")
@@ -223,7 +223,7 @@ def quantum_block_decrypt_3(block, key3):
     return int(list(res.get_counts().keys())[0], 2)
 
 
-# ====================== АНАЛИЗ РЕСУРСОВ ОДНОГО БЛОКА ======================
+# АНАЛИЗ РЕСУРСОВ ОДНОГО БЛОКА
 def analyze_circuit(qc):
 
     num_qubits = qc.num_qubits
@@ -245,7 +245,7 @@ def analyze_single_block(block, key3):
     return analyze_circuit(qc2)
 
 
-# ====================== РАБОТА С БЛОКАМИ 12 БИТ ======================
+# РАБОТА С БЛОКАМИ 12 БИТ
 def split_blocks_12(data):
     blocks = []
     while data:
@@ -274,7 +274,7 @@ def split_last_block(data):
     return blocks, Xn, tail
 
 
-# ====================== ШИФРОВАНИЕ СООБЩЕНИЯ ======================
+# ШИФРОВАНИЕ СООБЩЕНИЯ
 def encrypt_message(data, key3):
     blocks, Xn, tail = split_last_block(data)
 
@@ -309,7 +309,7 @@ def encrypt_message(data, key3):
     return join_blocks_12(encrypted_blocks), tail
 
 
-# ====================== РАСШИФРОВАНИЕ СООБЩЕНИЯ ======================
+#РАСШИФРОВАНИЕ СООБЩЕНИЯ
 def decrypt_message(cipher, key3, tail):
     blocks = split_blocks_12(cipher)
 
@@ -344,7 +344,7 @@ def decrypt_message(cipher, key3, tail):
     return data
 
 
-# ====================== ТЕСТ ======================
+#ТЕСТ
 def analyze():
     plaintext = 0xA54746483884FF
     key3 = 0x6
